@@ -1457,6 +1457,20 @@ img, svg{max-width:100%}
 .m-audio.loading::after{content:"";position:absolute;width:11px;height:11px;border:2px solid var(--violet-l);border-top-color:var(--violet);border-radius:50%;animation:mspin .6s linear infinite}
 .m-audio.playing{background:var(--violet);color:#fff}
 
+
+/* Botón de audio: estado pausado (muestra ▶ para reanudar) */
+.m-audio.playing::before{content:"";position:absolute;width:9px;height:9px;}
+.m-audio.paused{background:var(--oro);color:#fff}
+
+
+/* Campo de texto dentro del Live (respaldo cuando el micrófono no funciona) */
+.jlive-input{display:flex;gap:.5rem;width:min(420px,84vw);margin:1rem 0 .2rem}
+.jlive-input input{flex:1;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;border-radius:11px;padding:.6rem .8rem;font-size:.82rem;font-family:inherit}
+.jlive-input input::placeholder{color:rgba(255,255,255,.55)}
+.jlive-input input:focus{outline:none;border-color:var(--oro)}
+.jlive-input button{flex:0 0 auto;width:42px;border-radius:11px;background:var(--oro);color:#fff;display:flex;align-items:center;justify-content:center}
+.jlive-input button svg{width:18px;height:18px}
+
 </style>
 </head>
 <body>
@@ -2257,6 +2271,10 @@ img, svg{max-width:100%}
           <div class="rab-live listening" id="rab-live-big" style="width:140px;height:140px"><div class="rl-halo" style="inset:0"></div><div class="rl-ring" style="inset:10px"></div><div class="rl-ring r2" style="inset:10px"></div><div class="rl-ring r3" style="inset:10px"></div><div class="rl-think" style="inset:4px"></div><img class="rl-img" id="jlive-rabimg" style="width:108px;height:108px" alt="Rab Benzadón"><div class="rl-bars"><i></i><i></i><i></i><i></i><i></i></div></div>
           <p id="jlive-state">El Rab te escucha…</p>
           <div class="jlive-sub" id="jlive-sub">Habla con naturalidad cuando quieras</div>
+          <div class="jlive-input" id="jlive-input">
+            <input type="text" id="jlive-text" placeholder="…o escribe tu pregunta aquí" onkeydown="if(event.key==='Enter')jLiveSend()">
+            <button onclick="jLiveSend()" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+          </div>
           <button class="jlive-end" onclick="jLiveEnd()">Terminar conversación</button>
         </div>
       </div>
@@ -2697,7 +2715,11 @@ function openNav(){renderNav();document.getElementById('sidenav').classList.add(
 function navToggleAll(){var sn=document.getElementById('sidenav');if(sn&&sn.classList.contains('open'))closeNav();else openNav();}
 function closeNav(){document.getElementById('sidenav').classList.remove('open');document.getElementById('navscrim').classList.remove('show');document.getElementById('hammenu').classList.remove('on');var hf=document.getElementById('hamfloat');if(hf)hf.classList.remove('on');}
 function navToggle(i){var w=document.getElementById('sn-sub-'+i);if(w){w.classList.toggle('open');var btn=w.previousElementSibling;if(btn)btn.classList.toggle('exp');}}
-function navGo(expr){closeNav();try{(new Function(expr))();}catch(e){console.error('[nav]',e);}}
+function navGo(expr){
+  var isDesktop = window.matchMedia && window.matchMedia('(min-width:1200px)').matches;
+  if(!isDesktop) closeNav();   // solo cerrar en móvil/tablet (overlay); en desktop queda fijo
+  try{(new Function(expr))();}catch(e){console.error('[nav]',e);}
+}
 function setSaber(g){
   document.querySelectorAll('.sbnav button').forEach(function(b){b.classList.toggle('on',b.dataset.sb===g);});
   document.querySelectorAll('#mv-saber .sgroup').forEach(function(s){s.classList.toggle('on',s.id==='sg-'+g);});
@@ -4662,18 +4684,22 @@ function jSetSpeed(s){
   document.querySelectorAll('#jspeed-pop button,#jspeed-pop2 button').forEach(function(b){b.classList.toggle('on', b.textContent===s+'x');});
   ['jspeed-pop','jspeed-pop2'].forEach(function(id){var p=document.getElementById(id); if(p)p.classList.remove('show');});
 }
+var JREPLAY_BTN=null, JREPLAY_IDX=null, JREPLAY_SCOPE=null;
 function jReplay(idx, scope, btn){
+  // Si toco el MISMO mensaje que está sonando → pausa/reanuda
+  if(btn && btn===JREPLAY_BTN && RAB_AUDIO){
+    if(RAB_AUDIO.paused){ RAB_AUDIO.play(); btn.classList.remove('paused'); btn.classList.add('playing'); }
+    else { RAB_AUDIO.pause(); btn.classList.remove('playing'); btn.classList.add('paused'); }
+    return;
+  }
   var thread = scope==='float'?JFLOAT:JSECTION;
   if(!thread)return;
   var bots = thread.msgs.filter(function(m){return m.role==='assistant';});
   var msg = bots[idx]; if(!msg)return;
-  // marcar el botón como "cargando" hasta que empiece a sonar
-  if(btn){
-    document.querySelectorAll('.m-audio.loading,.m-audio.playing').forEach(function(b){b.classList.remove('loading','playing');});
-    btn.classList.add('loading');
-  }
-  speakNow(msg.content, function(){ if(btn)btn.classList.remove('playing'); });
-  // cuando el audio realmente empiece, pasar de loading a playing
+  // nuevo mensaje: limpiar estados de todos los botones
+  document.querySelectorAll('.m-audio.loading,.m-audio.playing,.m-audio.paused').forEach(function(b){b.classList.remove('loading','playing','paused');});
+  if(btn){ btn.classList.add('loading'); JREPLAY_BTN=btn; JREPLAY_IDX=idx; JREPLAY_SCOPE=scope; }
+  speakNow(msg.content, function(){ if(btn)btn.classList.remove('playing','paused','loading'); if(JREPLAY_BTN===btn)JREPLAY_BTN=null; });
   var chk=setInterval(function(){
     if(RAB_AUDIO || (window.speechSynthesis&&speechSynthesis.speaking)){
       if(btn){btn.classList.remove('loading');btn.classList.add('playing');}
@@ -4740,6 +4766,14 @@ function jLiveListen(){
     rabState('idle');
     jLiveSetState('No pude abrir el micrófono', 'Escribe tu pregunta abajo y el Rab responde con voz');
   }
+}
+function jLiveSend(){
+  var inp=document.getElementById('jlive-text'); if(!inp)return;
+  var t=(inp.value||'').trim(); if(!t)return;
+  inp.value='';
+  // detener escucha de voz mientras procesa el texto escrito
+  if(LIVE_REC){try{LIVE_REC.stop();}catch(e){}}
+  jLiveHandle(t);
 }
 async function jLiveHandle(texto){
   if(!LIVE_ON)return;
