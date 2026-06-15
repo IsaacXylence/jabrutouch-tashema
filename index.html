@@ -1452,6 +1452,12 @@ img, svg{max-width:100%}
 .hdr-home:hover{background:var(--violet);color:#fff;border-color:var(--violet)}
 .hdr-home.on{background:var(--violet);color:#fff;border-color:var(--violet)}
 
+
+/* Botón de audio: estados de carga y reproducción */
+.m-audio.loading{position:relative;color:transparent}
+.m-audio.loading::after{content:"";position:absolute;width:11px;height:11px;border:2px solid var(--violet-l);border-top-color:var(--violet);border-radius:50%;animation:mspin .6s linear infinite}
+.m-audio.playing{background:var(--violet);color:#fff}
+
 </style>
 </head>
 <body>
@@ -3983,7 +3989,7 @@ function cleanReply(t){
 }
 function jPaintMsg(t,w){const m=document.createElement('div');m.className='m '+w;m.textContent=(w==='b')?cleanReply(t):t;
   const box=document.getElementById('msgs');
-  if(w==='b'){var idx=box.querySelectorAll('.m.b').length;var a=document.createElement('span');a.className='m-audio';a.title='Escuchar';a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';a.onclick=function(){jReplay(idx,'section');};m.appendChild(a);}
+  if(w==='b'){var idx=box.querySelectorAll('.m.b').length;var a=document.createElement('span');a.className='m-audio';a.title='Escuchar';a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';a.onclick=function(){jReplay(idx,'section',a);};m.appendChild(a);}
   box.appendChild(m);m.scrollIntoView({behavior:'smooth',block:'end'});}
 function addM(t,w){ jPaintMsg(t,w); }
 function typingOn(){const t=document.createElement('div');t.className='typing';t.id='ty';t.innerHTML='<i></i><i></i><i></i>';
@@ -4369,7 +4375,7 @@ function jFabWatch(){
 function jPaintFloat(t,who){
   var m=document.createElement('div'); m.className='m '+who; m.textContent=(who==='b')?cleanReply(t):t;
   var box=document.getElementById('jmsgs');
-  if(who==='b'){var idx=box.querySelectorAll('.m.b').length;var a=document.createElement('span');a.className='m-audio';a.title='Escuchar';a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';a.onclick=function(){jReplay(idx,'float');};m.appendChild(a);}
+  if(who==='b'){var idx=box.querySelectorAll('.m.b').length;var a=document.createElement('span');a.className='m-audio';a.title='Escuchar';a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';a.onclick=function(){jReplay(idx,'float',a);};m.appendChild(a);}
   box.appendChild(m); m.scrollIntoView({behavior:'smooth',block:'end'});
 }
 function jAddM(t,who){ jPaintFloat(t,who); }
@@ -4560,12 +4566,19 @@ function speak(t){
   if(!S.tts)return;        // respeta el silenciador del usuario
   speakNow(t);             // voz del Rab (ElevenLabs) con fallback al navegador
 }
-var RAB_AUDIO=null;        // elemento <audio> reutilizable para la voz del Rab
-var RAB_TTS_OK=true;       // si ElevenLabs falla, dejamos de intentarlo esta sesión
+var RAB_AUDIO=null;        // elemento <audio> de la voz del Rab
+var RAB_TTS_OK=true;       // si ElevenLabs falla por config, no reintentar esta sesión
+var VOICE_TOKEN=0;         // candado: solo la última petición de voz puede sonar
 function _liveNow(){ var o=document.getElementById('jlive-overlay'); return o&&o.classList.contains('show'); }
-function _stopRabAudio(){ if(RAB_AUDIO){ try{RAB_AUDIO.pause();}catch(e){} RAB_AUDIO=null; } if(window.speechSynthesis)speechSynthesis.cancel(); }
+// Detiene TODA voz en curso (ElevenLabs + navegador) e invalida peticiones previas
+function _stopRabAudio(){
+  VOICE_TOKEN++;                                  // invalida cualquier reproducción en vuelo
+  if(RAB_AUDIO){ try{RAB_AUDIO.pause(); RAB_AUDIO.src='';}catch(e){} RAB_AUDIO=null; }
+  if(window.speechSynthesis){ try{speechSynthesis.cancel();}catch(e){} }
+}
 // Voz del navegador (respaldo)
-function speakBrowser(t, onend){
+function speakBrowser(t, onend, token){
+  if(token!==undefined && token!==VOICE_TOKEN){ if(onend)onend(); return; }
   if(!window.speechSynthesis){ if(onend)onend(); return; }
   speechSynthesis.cancel();
   var u=new SpeechSynthesisUtterance(t.replace(/[👑✓✗]/g,'')); u.lang='es-MX'; u.rate=1.02*jAudioSpeed;
@@ -4574,31 +4587,56 @@ function speakBrowser(t, onend){
   u.onend=function(){rabState(_liveNow()?'listening':'idle'); if(onend)onend();};
   speechSynthesis.speak(u);
 }
+var _RAB_ACTX=null;
+// Amplifica SOLO la voz del Rab (ElevenLabs) con un limitador para que no sature.
+function _amplifyRab(audioEl, gainX){
+  try{
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;                       // navegador sin Web Audio → volumen normal
+    if(!_RAB_ACTX) _RAB_ACTX = new AC();
+    if(_RAB_ACTX.state==='suspended') _RAB_ACTX.resume();
+    var src = _RAB_ACTX.createMediaElementSource(audioEl);
+    var gain = _RAB_ACTX.createGain();
+    gain.gain.value = gainX || 3.5;       // 350%
+    // Limitador (compresor agresivo) para evitar distorsión en los picos
+    var comp = _RAB_ACTX.createDynamicsCompressor();
+    comp.threshold.value = -6;            // a partir de -6 dB empieza a limitar
+    comp.knee.value = 0;
+    comp.ratio.value = 20;                // limita fuerte (casi pared)
+    comp.attack.value = 0.003;
+    comp.release.value = 0.25;
+    src.connect(gain); gain.connect(comp); comp.connect(_RAB_ACTX.destination);
+  }catch(e){ /* si falla, el audio suena a volumen normal sin amplificar */ }
+}
 // Voz del Rab (ElevenLabs vía proxy). Cae al navegador si no está disponible.
+// El candado VOICE_TOKEN garantiza que NUNCA suenen dos voces a la vez.
 async function speakNow(t, onend){
-  _stopRabAudio();
+  _stopRabAudio();                 // corta lo anterior y avanza el token
+  var myToken=VOICE_TOKEN;         // este es mi turno
   var clean=(typeof cleanReply==='function')?cleanReply(t):t;
   if(!clean){ if(onend)onend(); return; }
-  // si ElevenLabs ya falló antes en esta sesión, ir directo al navegador
-  if(!RAB_TTS_OK){ speakBrowser(clean, onend); return; }
+  if(!RAB_TTS_OK){ speakBrowser(clean, onend, myToken); return; }
   try{
-    rabState('speaking');
+    rabState('thinking');          // mientras carga el audio: estado pensando
     var r=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:clean})});
     var d=await r.json();
+    // si llegó otra petición de voz mientras cargaba, abortar esta
+    if(myToken!==VOICE_TOKEN){ if(onend)onend(); return; }
     if(d && d.audio && !d.fallback){
-      var a=new Audio(d.audio); RAB_AUDIO=a;
+      var a=new Audio(d.audio); a.volume=1.0; a.crossOrigin='anonymous'; RAB_AUDIO=a;
       a.playbackRate=jAudioSpeed||1;
-      a.onplay=function(){rabState('speaking');};
-      a.onended=function(){RAB_AUDIO=null; rabState(_liveNow()?'listening':'idle'); if(onend)onend();};
-      a.onerror=function(){RAB_AUDIO=null; speakBrowser(clean, onend);};
-      try{ await a.play(); }catch(e){ speakBrowser(clean, onend); }
+      _amplifyRab(a, 3.5);   // sube la voz del Rab ~350% con limitador anti-saturación
+      a.onplay=function(){ if(myToken===VOICE_TOKEN) rabState('speaking'); };
+      a.onended=function(){ if(RAB_AUDIO===a)RAB_AUDIO=null; rabState(_liveNow()?'listening':'idle'); if(onend)onend(); };
+      a.onerror=function(){ if(RAB_AUDIO===a)RAB_AUDIO=null; speakBrowser(clean, onend, myToken); };
+      try{ await a.play(); }catch(e){ speakBrowser(clean, onend, myToken); }
     }else{
-      // sin credenciales o fallback → voz del navegador (y no reintentar si es por config)
       if(d && d.fallback) RAB_TTS_OK=false;
-      speakBrowser(clean, onend);
+      speakBrowser(clean, onend, myToken);
     }
   }catch(e){
-    speakBrowser(clean, onend);
+    if(myToken===VOICE_TOKEN) speakBrowser(clean, onend, myToken);
+    else if(onend)onend();
   }
 }
 function jToggleSpeed(e){ if(e)e.stopPropagation();
@@ -4611,11 +4649,25 @@ function jSetSpeed(s){
   document.querySelectorAll('#jspeed-pop button,#jspeed-pop2 button').forEach(function(b){b.classList.toggle('on', b.textContent===s+'x');});
   ['jspeed-pop','jspeed-pop2'].forEach(function(id){var p=document.getElementById(id); if(p)p.classList.remove('show');});
 }
-function jReplay(idx, scope){
+function jReplay(idx, scope, btn){
   var thread = scope==='float'?JFLOAT:JSECTION;
   if(!thread)return;
   var bots = thread.msgs.filter(function(m){return m.role==='assistant';});
-  var msg = bots[idx]; if(msg)speakNow(msg.content);
+  var msg = bots[idx]; if(!msg)return;
+  // marcar el botón como "cargando" hasta que empiece a sonar
+  if(btn){
+    document.querySelectorAll('.m-audio.loading,.m-audio.playing').forEach(function(b){b.classList.remove('loading','playing');});
+    btn.classList.add('loading');
+  }
+  speakNow(msg.content, function(){ if(btn)btn.classList.remove('playing'); });
+  // cuando el audio realmente empiece, pasar de loading a playing
+  var chk=setInterval(function(){
+    if(RAB_AUDIO || (window.speechSynthesis&&speechSynthesis.speaking)){
+      if(btn){btn.classList.remove('loading');btn.classList.add('playing');}
+      clearInterval(chk);
+    }
+  },80);
+  setTimeout(function(){clearInterval(chk); if(btn)btn.classList.remove('loading');},8000);
 }
 
 /* control de estados del avatar vivo del Rab */
@@ -4678,28 +4730,28 @@ function jLiveListen(){
 }
 async function jLiveHandle(texto){
   if(!LIVE_ON)return;
-  // pensando
   rabState('thinking');
   jLiveSetState('El Rab está pensando…', '«'+texto+'»');
-  // registrar en el hilo y pedir respuesta al javruta
   if(!JFLOAT)JFLOAT=jNewThread();
+  // registrar y PINTAR tu pregunta en la conversación
   JFLOAT.msgs.push({role:'user',content:texto});
+  jPaintFloat(texto,'u');
   var apiMsgs=JFLOAT.msgs.filter(function(m){return !m.seed;}).map(function(m){return {role:m.role,content:m.content};});
   var rep=await askJavruta(apiMsgs);
   if(!rep)rep=jFallbackReply();
   rep=cleanReply(rep);
   JFLOAT.msgs.push({role:'assistant',content:rep});
+  // PINTAR la respuesta del Rab en la conversación (se guarda en el hilo)
+  jPaintFloat(rep,'b');
   jArchive&&jArchive(JFLOAT);
   if(!LIVE_ON)return;
-  // hablar la respuesta; al terminar, volver a escuchar
-  jLiveSetState('', '');
   jLiveSpeak(rep);
 }
 function jLiveSpeak(t){
-  jLiveSetState('El Rab responde…','');
+  // mostrar el texto de la respuesta del Rab dentro del overlay del Live
+  jLiveSetState('El Rab responde…', t);
   rabState('speaking');
-  // Voz del Rab (ElevenLabs); al terminar, reanuda la escucha del bucle Live
-  speakNow(t, function(){ if(LIVE_ON){ rabState('listening'); setTimeout(jLiveListen,300); } });
+  speakNow(t, function(){ if(LIVE_ON){ jLiveSetState('El Rab te escucha…','Habla cuando quieras'); rabState('listening'); setTimeout(jLiveListen,300); } });
 }
 function jLiveEnd(){
   LIVE_ON=false;
