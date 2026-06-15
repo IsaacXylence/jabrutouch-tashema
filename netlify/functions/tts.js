@@ -17,7 +17,7 @@
 
 const ELEVEN_URL = "https://api.elevenlabs.io/v1/text-to-speech/";
 // Multilingual v2 = mejor calidad y soporte de español (incl. términos hebreos).
-const MODEL = "eleven_multilingual_v2";
+const MODEL = "eleven_flash_v2_5";
 const MAX_TEXT = 2500; // tope de caracteres por petición (controla costo/latencia)
 
 const CORS = {
@@ -66,7 +66,7 @@ exports.handler = async (event) => {
   const timer = setTimeout(() => controller.abort(), 25000);
 
   try {
-    const r = await fetch(ELEVEN_URL + encodeURIComponent(VOICE_ID), {
+    const r = await fetch(ELEVEN_URL + encodeURIComponent(VOICE_ID) + "?optimize_streaming_latency=3&output_format=mp3_44100_128", {
       method: "POST",
       signal: controller.signal,
       headers: {
