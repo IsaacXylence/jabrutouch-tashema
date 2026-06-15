@@ -14,7 +14,7 @@
  * ─────────────────────────────────────────────────────────────────────────
  */
 
-const { buildSystemPrompt } = require("./_systemPrompt.js");
+const { buildSystemPrompt, buildEjercicioPrompt } = require("./_systemPrompt.js");
 
 // ── Config ──
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
@@ -102,7 +102,11 @@ exports.handler = async (event) => {
     };
   }
 
-  const messages = sanitizeMessages(body.messages);
+  let messages = sanitizeMessages(body.messages);
+  // En modo 'ejercicio' el cliente no manda conversación: creamos el disparador.
+  if (body.mode === "ejercicio" && messages.length === 0) {
+    messages = [{ role: "user", content: "Genera el ejercicio sobre el texto indicado." }];
+  }
   if (messages.length === 0) {
     return {
       statusCode: 400,
@@ -128,7 +132,16 @@ exports.handler = async (event) => {
   //    y se les recuerda no inventar fuentes.
   const ANTI_HALU = "\n\nIMPORTANTE: no inventes fuentes, números de daf ni citas que no te hayan sido dadas. Responde solo lo pedido, en español.";
   let system, grounded;
-  if (typeof body.system === "string" && body.system.trim()) {
+  if (body.mode === "ejercicio") {
+    // Generar un ejercicio nuevo con el método del Rab sobre un texto de Sefaria
+    system = buildEjercicioPrompt({
+      ref: typeof body.ref === "string" ? body.ref.slice(0, 200) : "",
+      categoria: typeof body.categoria === "string" ? body.categoria.slice(0, 80) : "",
+      texto: ctx.fuentes,
+      arquetipo: ctx.arquetipo,
+    });
+    grounded = !!(ctx.fuentes && ctx.fuentes.trim());
+  } else if (typeof body.system === "string" && body.system.trim()) {
     system = body.system.slice(0, 8000) + ANTI_HALU;
     grounded = false;
   } else {
