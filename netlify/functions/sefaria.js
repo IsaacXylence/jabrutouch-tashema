@@ -104,6 +104,56 @@ async function fetchRef(ref, signal) {
   return { he, en };
 }
 
+/**
+ * Busca textos en toda la biblioteca de Sefaria (full-text).
+ * Devuelve una lista de refs con un fragmento, para que el usuario elija.
+ */
+async function searchSefaria(query, signal, categoria) {
+  // Detectar si la consulta es hebrea (para elegir el campo correcto)
+  const isHebrew = /[\u0590-\u05FF]/.test(query);
+  const body = {
+    query: query,
+    type: "text",
+    // 'exact' funciona para español/inglés; 'naive_lemmatizer' solo hebreo.
+    field: isHebrew ? "naive_lemmatizer" : "exact",
+    slop: isHebrew ? 10 : 2,
+    size: 12,
+    source_proj: true, // devolver el documento completo (ref, categories, etc.)
+  };
+  // Filtro por categoría: debe ser la RUTA del campo 'path' de Sefaria.
+  if (categoria) {
+    body.filters = [categoria];
+    body.filter_fields = ["path"];
+  }
+  const r = await fetch("https://www.sefaria.org/api/search-wrapper", {
+    method: "POST",
+    signal,
+    headers: { "Content-Type": "application/json; charset=utf-8", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) return { results: [], error: `Sefaria search ${r.status}` };
+  const data = await r.json();
+  // ElasticSearch: data.hits.hits[]._source { ref, heRef, categories, exact... }
+  const hits = (data && data.hits && data.hits.hits) || [];
+  const results = hits.map((h) => {
+    const s = h._source || h.fields || {};
+    // El fragmento puede venir en highlight (varias claves posibles) o en el texto
+    let hl = "";
+    if (h.highlight) {
+      const keys = Object.keys(h.highlight);
+      if (keys.length) hl = [].concat(h.highlight[keys[0]] || []).join(" … ");
+    }
+    const snippet = clean(hl || s.exact || s.naive_lemmatizer || "").slice(0, 240);
+    return {
+      ref: s.ref || s.title || "",
+      heRef: s.heRef || "",
+      categoria: Array.isArray(s.categories) ? s.categories.join(" › ") : (s.categories || ""),
+      snippet,
+    };
+  }).filter((x) => x.ref);
+  return { results };
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: CORS, body: "" };
@@ -113,9 +163,29 @@ exports.handler = async (event) => {
   }
 
   const params = event.queryStringParameters || {};
+  const action = (params.action || "text").toLowerCase();
   const key = (params.ref || "").trim();
   const lang = (params.lang || "both").toLowerCase();
 
+  // ── ACCIÓN: BÚSQUEDA en toda la biblioteca ──
+  if (action === "search") {
+    const q = (params.q || "").trim();
+    if (!q) {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: "Falta 'q'" }) };
+    }
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      const out = await searchSefaria(q, ctrl.signal, params.categoria || "");
+      clearTimeout(t);
+      return { statusCode: 200, headers: CORS, body: JSON.stringify({ q, ...out, source: "sefaria" }) };
+    } catch (e) {
+      clearTimeout(t);
+      return { statusCode: 200, headers: CORS, body: JSON.stringify({ q, results: [], error: "búsqueda no disponible", source: "sefaria" }) };
+    }
+  }
+
+  // ── ACCIÓN: TRAER TEXTO (por defecto) ──
   if (!key) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: "Falta 'ref'" }) };
   }
