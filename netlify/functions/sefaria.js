@@ -109,48 +109,68 @@ async function fetchRef(ref, signal) {
  * Devuelve una lista de refs con un fragmento, para que el usuario elija.
  */
 async function searchSefaria(query, signal, categoria) {
-  // Detectar si la consulta es hebrea (para elegir el campo correcto)
   const isHebrew = /[\u0590-\u05FF]/.test(query);
-  const body = {
-    query: query,
-    type: "text",
-    // 'exact' funciona para español/inglés; 'naive_lemmatizer' solo hebreo.
-    field: isHebrew ? "naive_lemmatizer" : "exact",
-    slop: isHebrew ? 10 : 2,
-    size: 12,
-    source_proj: true, // devolver el documento completo (ref, categories, etc.)
-  };
-  // Filtro por categoría: debe ser la RUTA del campo 'path' de Sefaria.
+  const field = isHebrew ? "naive_lemmatizer" : "exact";
+
+  // Cuerpo ElasticSearch (formato documentado por Sefaria). match_phrase sobre el campo.
+  const matchClause = { match_phrase: {} };
+  matchClause.match_phrase[field] = isHebrew
+    ? { query: query, slop: 10 }
+    : { query: query };
+
+  let queryBody;
   if (categoria) {
-    body.filters = [categoria];
-    body.filter_fields = ["path"];
+    // Filtrar por categoría con regexp sobre 'path' (Ejemplo 4 de la doc)
+    queryBody = {
+      bool: {
+        must: matchClause,
+        filter: {
+          bool: {
+            should: [{ regexp: { path: categoria + ".*" } }],
+          },
+        },
+      },
+    };
+  } else {
+    queryBody = matchClause;
   }
-  const r = await fetch("https://www.sefaria.org/api/search-wrapper", {
+
+  const esBody = {
+    size: 12,
+    highlight: {
+      pre_tags: ["<b>"],
+      post_tags: ["</b>"],
+      fields: { [field]: { fragment_size: 200 } },
+    },
+    query: queryBody,
+  };
+
+  const r = await fetch("https://www.sefaria.org/api/search/text/_search", {
     method: "POST",
     signal,
-    headers: { "Content-Type": "application/json; charset=utf-8", Accept: "application/json" },
-    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(esBody),
   });
   if (!r.ok) return { results: [], error: `Sefaria search ${r.status}` };
   const data = await r.json();
-  // ElasticSearch: data.hits.hits[]._source { ref, heRef, categories, exact... }
   const hits = (data && data.hits && data.hits.hits) || [];
-  const results = hits.map((h) => {
-    const s = h._source || h.fields || {};
-    // El fragmento puede venir en highlight (varias claves posibles) o en el texto
-    let hl = "";
-    if (h.highlight) {
-      const keys = Object.keys(h.highlight);
-      if (keys.length) hl = [].concat(h.highlight[keys[0]] || []).join(" … ");
-    }
-    const snippet = clean(hl || s.exact || s.naive_lemmatizer || "").slice(0, 240);
-    return {
-      ref: s.ref || s.title || "",
-      heRef: s.heRef || "",
-      categoria: Array.isArray(s.categories) ? s.categories.join(" › ") : (s.categories || ""),
-      snippet,
-    };
-  }).filter((x) => x.ref);
+  const results = hits
+    .map((h) => {
+      const s = h._source || {};
+      let hl = "";
+      if (h.highlight) {
+        const keys = Object.keys(h.highlight);
+        if (keys.length) hl = [].concat(h.highlight[keys[0]] || []).join(" … ");
+      }
+      const snippet = clean(hl || s.exact || s.naive_lemmatizer || "").slice(0, 240);
+      return {
+        ref: s.ref || "",
+        heRef: s.heRef || "",
+        categoria: Array.isArray(s.categories) ? s.categories.join(" › ") : (s.categories || ""),
+        snippet,
+      };
+    })
+    .filter((x) => x.ref);
   return { results };
 }
 
