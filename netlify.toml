@@ -1,10 +1,14 @@
 [build]
-  publish = "public"
+  # Carpeta que se publica como sitio (index.html en la raíz).
+  publish = "."
+  # Carpeta donde Netlify busca las funciones serverless.
   functions = "netlify/functions"
 
 [build.environment]
+  # Node 18+ trae fetch/AbortController nativos (lo que usa el proxy).
   NODE_VERSION = "20"
 
+# ── Rutas amables: /api/javruta → la función javruta ──
 [[redirects]]
   from = "/api/javruta"
   to = "/.netlify/functions/javruta"
@@ -20,11 +24,13 @@
   to = "/.netlify/functions/sefaria"
   status = 200
 
+# ── SPA fallback: cualquier ruta no-API sirve la app ──
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# ── Cabeceras de seguridad básicas ──
 [[headers]]
   for = "/*"
   [headers.values]
