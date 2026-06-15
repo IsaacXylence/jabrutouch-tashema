@@ -1425,22 +1425,21 @@ img, svg{max-width:100%}
 .bib-gen .bib-spin{width:22px;height:22px}
 
 
-/* ═══ T1: SIDEBAR FIJO EN DESKTOP (parte del layout) ═══ */
+/* ═══ T1: SIDEBAR FIJO EN DESKTOP (parte del layout, SOLO tras onboarding) ═══ */
 @media (min-width: 1200px){
-  /* El sidebar es columna permanente, no overlay */
+  /* El sidebar es columna permanente, pero solo cuando está .open (tras onboarding) */
   .sidenav{
-    position:fixed; transform:none !important; width:300px;
+    position:fixed; width:300px;
     box-shadow:none; border-right:1px solid var(--linea); z-index:40;
   }
-  /* El scrim no se usa en desktop (el sidebar es parte de la pantalla) */
+  .sidenav.open{ transform:none !important; }
+  /* El scrim no se usa en desktop */
   .navscrim{display:none !important}
-  /* La app se desplaza a la derecha para dejar espacio al sidebar */
-  .stage{padding-left:300px}
-  /* La hamburguesa flotante se oculta en desktop (el sidebar siempre está) */
+  /* La app se desplaza a la derecha SOLO cuando el sidebar está abierto */
+  .stage.has-sidenav{padding-left:300px}
+  /* La hamburguesa flotante se oculta en desktop (el sidebar es permanente tras onboarding) */
   .hamfloat{display:none !important}
-  /* El botón × del sidebar sobra en desktop (no hay nada que cerrar) */
   .sn-x{display:none !important}
-  /* recuperar el padding del header que dejaba sitio al flotante */
   .hdr{padding-left:1rem}
 }
 /* En tablet/móvil el sidebar sigue siendo overlay (como estaba) */
@@ -2567,6 +2566,12 @@ function renderPlanCard(p){
 function closeSplash(){
   document.getElementById('splash').classList.add('off');
   jShowFab();
+  // En desktop, el sidebar aparece SOLO después del onboarding (al entrar a Home)
+  if(window.matchMedia && window.matchMedia('(min-width:1200px)').matches){
+    renderNav();
+    document.getElementById('sidenav').classList.add('open');
+    var stg=document.querySelector('.stage'); if(stg)stg.classList.add('has-sidenav');
+  }
   setP(S.p||obP||'dani');
   jLoadPersist().then(function(){ if(document.getElementById('tab-javruta').classList.contains('on'))jEnterSection(); });
   bootAnimate();
@@ -2587,6 +2592,7 @@ async function logout(){
   // cerrar paneles/overlays abiertos
   try{ if(typeof jClose==='function')jClose(); }catch(e){}
   var sd=document.getElementById('sidenav'); if(sd){sd.classList.remove('open');var sc=document.getElementById('navscrim');if(sc)sc.classList.remove('show');}
+  var stg0=document.querySelector('.stage'); if(stg0)stg0.classList.remove('has-sidenav');
   // ocultar FAB del javruta
   var fab=document.getElementById('jfab'); if(fab)fab.classList.add('hidden');
   var jtab=document.getElementById('jtab'); if(jtab)jtab.classList.remove('show');
@@ -4588,25 +4594,32 @@ function speakBrowser(t, onend, token){
   speechSynthesis.speak(u);
 }
 var _RAB_ACTX=null;
+var _RAB_GAINX=5.0;        // factor de amplificación de la voz del Rab (500%, con limitador)
+// Reanuda el AudioContext en cualquier interacción del usuario (requisito de Safari/Chrome)
+function _ensureAudioCtx(){
+  try{
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return null;
+    if(!_RAB_ACTX) _RAB_ACTX = new AC();
+    if(_RAB_ACTX.state==='suspended') _RAB_ACTX.resume();
+    return _RAB_ACTX;
+  }catch(e){ return null; }
+}
+document.addEventListener('click', _ensureAudioCtx, true);
+document.addEventListener('touchstart', _ensureAudioCtx, true);
 // Amplifica SOLO la voz del Rab (ElevenLabs) con un limitador para que no sature.
 function _amplifyRab(audioEl, gainX){
   try{
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC) return;                       // navegador sin Web Audio → volumen normal
-    if(!_RAB_ACTX) _RAB_ACTX = new AC();
-    if(_RAB_ACTX.state==='suspended') _RAB_ACTX.resume();
-    var src = _RAB_ACTX.createMediaElementSource(audioEl);
-    var gain = _RAB_ACTX.createGain();
-    gain.gain.value = gainX || 3.5;       // 350%
-    // Limitador (compresor agresivo) para evitar distorsión en los picos
-    var comp = _RAB_ACTX.createDynamicsCompressor();
-    comp.threshold.value = -6;            // a partir de -6 dB empieza a limitar
-    comp.knee.value = 0;
-    comp.ratio.value = 20;                // limita fuerte (casi pared)
-    comp.attack.value = 0.003;
-    comp.release.value = 0.25;
-    src.connect(gain); gain.connect(comp); comp.connect(_RAB_ACTX.destination);
-  }catch(e){ /* si falla, el audio suena a volumen normal sin amplificar */ }
+    var ctx = _ensureAudioCtx();
+    if(!ctx || ctx.state!=='running') return;   // si no está corriendo, NO enrutar (el audio suena normal y sí se oye)
+    var src = ctx.createMediaElementSource(audioEl);
+    var gain = ctx.createGain();
+    gain.gain.value = gainX || _RAB_GAINX;
+    var comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -8; comp.knee.value = 0; comp.ratio.value = 20;
+    comp.attack.value = 0.003; comp.release.value = 0.25;
+    src.connect(gain); gain.connect(comp); comp.connect(ctx.destination);
+  }catch(e){ /* si falla, el audio suena a volumen normal */ }
 }
 // Voz del Rab (ElevenLabs vía proxy). Cae al navegador si no está disponible.
 // El candado VOICE_TOKEN garantiza que NUNCA suenen dos voces a la vez.
@@ -4625,7 +4638,7 @@ async function speakNow(t, onend){
     if(d && d.audio && !d.fallback){
       var a=new Audio(d.audio); a.volume=1.0; a.crossOrigin='anonymous'; RAB_AUDIO=a;
       a.playbackRate=jAudioSpeed||1;
-      _amplifyRab(a, 3.5);   // sube la voz del Rab ~350% con limitador anti-saturación
+      _amplifyRab(a, _RAB_GAINX);   // amplifica la voz del Rab con limitador anti-saturación
       a.onplay=function(){ if(myToken===VOICE_TOKEN) rabState('speaking'); };
       a.onended=function(){ if(RAB_AUDIO===a)RAB_AUDIO=null; rabState(_liveNow()?'listening':'idle'); if(onend)onend(); };
       a.onerror=function(){ if(RAB_AUDIO===a)RAB_AUDIO=null; speakBrowser(clean, onend, myToken); };
@@ -4916,13 +4929,6 @@ function closeOpener(){
   R(renderAgenda,'agenda'); R(renderFeed,'feed'); R(renderCal,'cal'); R(renderEsc,'esc'); R(renderDiaspora,'diaspora'); R(setupVoice,'voice');
   R(()=>setP(S.p||'dani', true),'setP');
   R(jFabWatch,'jfabwatch'); R(jFabAuto,'jfabauto');
-  // T1: en desktop, sidebar abierto por defecto como parte del layout
-  R(function(){
-    if(window.matchMedia && window.matchMedia('(min-width:1200px)').matches){
-      renderNav();
-      document.getElementById('sidenav').classList.add('open');
-    }
-  },'sidenav-desktop');
 })();
 </script>
 </body>
