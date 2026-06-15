@@ -17,7 +17,7 @@
 
 const ELEVEN_URL = "https://api.elevenlabs.io/v1/text-to-speech/";
 // Multilingual v2 = mejor calidad y soporte de español (incl. términos hebreos).
-const MODEL = "eleven_flash_v2_5";
+const MODEL = "eleven_multilingual_v2";
 const MAX_TEXT = 2500; // tope de caracteres por petición (controla costo/latencia)
 
 const CORS = {
