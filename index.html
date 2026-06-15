@@ -1471,6 +1471,14 @@ img, svg{max-width:100%}
 .jlive-input button{flex:0 0 auto;width:42px;border-radius:11px;background:var(--oro);color:#fff;display:flex;align-items:center;justify-content:center}
 .jlive-input button svg{width:18px;height:18px}
 
+
+/* Catálogo curado de la Biblioteca */
+.bib-cat-group{margin-bottom:1.1rem}
+.bib-cat-h{font-family:'Frank Ruhl Libre',serif;font-size:.95rem;color:var(--oro-l);margin:0 0 .5rem;font-weight:800;letter-spacing:.02em}
+.bib-adv{margin-top:1rem;border-top:1px solid rgba(255,255,255,.12);padding-top:.7rem}
+.bib-adv summary{font-size:.78rem;color:var(--oro-l);cursor:pointer;font-weight:700}
+.bib-adv-note{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:.5rem;line-height:1.5}
+
 </style>
 </head>
 <body>
@@ -1775,7 +1783,7 @@ img, svg{max-width:100%}
         <div class="subview" id="sv-biblio">
           <div class="eyebrow"><span class="h">אוצר</span> Biblioteca viva</div>
           <div class="h2">Cualquier texto. El método del Rab.</div>
-          <p class="sub">Busca en toda la biblioteca de Sefaria —Guemará, Mishná, Musar, Halajá, Tanaj y más— y Tashema Intelligence lo convierte en un estudio guiado con el método del Rab Benzadón.</p>
+          <p class="sub">Busca en toda la biblioteca Tashema —Guemará, Mishná, Musar, Halajá, Tanaj y más— y Tashema Intelligence lo convierte en un estudio guiado con el método del Rab Benzadón.</p>
 
           <div class="bib-search">
             <div class="bib-cats" id="bib-cats">
@@ -1796,15 +1804,43 @@ img, svg{max-width:100%}
 
           <div class="bib-status" id="bib-status"></div>
 
-          <!-- Estado inicial: sugerencias para empezar -->
+          <!-- Catálogo curado clickeable (temario) -->
           <div class="bib-intro" id="bib-intro">
-            <p class="bib-intro-t">Empieza por aquí</p>
-            <div class="bib-sugs">
-              <button onclick="bibQuick('Shema','Tanakh')"><b>El Shemá</b><span>Tanaj · Devarim</span></button>
-              <button onclick="bibQuick('Mesilat Yesharim 1','Musar')"><b>Mesilat Yesharim</b><span>Musar · el deber del hombre</span></button>
-              <button onclick="bibQuick('Pirkei Avot 1','Mishnah')"><b>Pirkei Avot</b><span>Mishná · ética de los padres</span></button>
-              <button onclick="bibQuick('Berakhot 2a','Talmud')"><b>Berajot 2a</b><span>Guemará · ¿desde cuándo el Shemá?</span></button>
+            <p class="bib-intro-t">Temario · elige un texto para estudiarlo con el método del Rab</p>
+            <div class="bib-cat-group">
+              <h4 class="bib-cat-h">Guemará</h4>
+              <div class="bib-sugs">
+                <button onclick="bibAbrir('Bava Metzia 2a','Babá Metzía 2a','Guemará')"><b>Babá Metzía 2a</b><span>Shnáyim ojazín · el caso del Rab</span></button>
+                <button onclick="bibAbrir('Berakhot 2a','Berajot 2a','Guemará')"><b>Berajot 2a</b><span>¿desde cuándo se lee el Shemá?</span></button>
+                <button onclick="bibAbrir('Bava Kamma 2a','Babá Kamá 2a','Guemará')"><b>Babá Kamá 2a</b><span>los daños · avot nezikín</span></button>
+              </div>
             </div>
+            <div class="bib-cat-group">
+              <h4 class="bib-cat-h">Mishná</h4>
+              <div class="bib-sugs">
+                <button onclick="bibAbrir('Mishnah Bava Metzia 1:1','Mishná Babá Metzía 1:1','Mishná')"><b>Babá Metzía 1:1</b><span>la mishná de Shnáyim ojazín</span></button>
+                <button onclick="bibAbrir('Pirkei Avot 1:1','Pirké Avot 1:1','Mishná')"><b>Pirké Avot 1:1</b><span>Moshé recibió la Torá en Sinaí</span></button>
+                <button onclick="bibAbrir('Mishnah Berakhot 1:1','Mishná Berajot 1:1','Mishná')"><b>Berajot 1:1</b><span>el Shemá de la noche</span></button>
+              </div>
+            </div>
+            <div class="bib-cat-group">
+              <h4 class="bib-cat-h">Musar</h4>
+              <div class="bib-sugs">
+                <button onclick="bibAbrir('Mesillat Yesharim 1','Mesilat Yesharim 1','Musar')"><b>Mesilat Yesharim 1</b><span>el deber del hombre en su mundo</span></button>
+                <button onclick="bibAbrir('Orchot Tzadikim 1','Orjot Tzadikim 1','Musar')"><b>Orjot Tzadikim</b><span>las sendas de los justos</span></button>
+              </div>
+            </div>
+            <div class="bib-cat-group">
+              <h4 class="bib-cat-h">Tanaj</h4>
+              <div class="bib-sugs">
+                <button onclick="bibAbrir('Deuteronomy 6:4','Devarim 6:4','Tanaj')"><b>Devarim 6:4</b><span>Shemá Israel</span></button>
+                <button onclick="bibAbrir('Genesis 1:1','Bereshit 1:1','Tanaj')"><b>Bereshit 1:1</b><span>en el principio</span></button>
+              </div>
+            </div>
+            <details class="bib-adv">
+              <summary>Buscar otro texto en la biblioteca</summary>
+              <p class="bib-adv-note">La búsqueda libre usa la biblioteca completa; algunos resultados pueden variar. Para la demo, el temario de arriba es la vía recomendada.</p>
+            </details>
           </div>
 
           <div class="bib-results" id="bib-results"></div>
@@ -2718,6 +2754,9 @@ function navToggle(i){var w=document.getElementById('sn-sub-'+i);if(w){w.classLi
 function navGo(expr){
   var isDesktop = window.matchMedia && window.matchMedia('(min-width:1200px)').matches;
   if(!isDesktop) closeNav();   // solo cerrar en móvil/tablet (overlay); en desktop queda fijo
+  // cerrar overlays abiertos (perfil, hojas, etc.) para que se vea el cambio de sección
+  var pm=document.getElementById('profmodal'); if(pm)pm.classList.remove('show');
+  var sv=document.getElementById('sheetview'); if(sv)sv.classList.remove('show');
   try{(new Function(expr))();}catch(e){console.error('[nav]',e);}
 }
 function setSaber(g){
@@ -4043,6 +4082,13 @@ function bibCat(btn){
   btn.classList.add('on'); BIB_CAT = btn.dataset.c || '';
 }
 function bibClearErr(){ var s=document.getElementById('bib-status'); if(s)s.classList.remove('bib-status-err'); }
+function bibAbrir(ref, titulo, cat){
+  // catálogo curado: vamos directo al texto, sin búsqueda (cero resultados irrelevantes)
+  document.getElementById('bib-intro').style.display='none';
+  var rs=document.getElementById('bib-results'); if(rs)rs.innerHTML='';
+  BIB_LAST=[{ref:ref, heRef:'', categoria:cat, snippet:titulo}];
+  bibGenerar(0);
+}
 function bibQuick(q, cat){
   document.getElementById('bib-q').value = q;
   // activar la categoría correspondiente
@@ -4777,6 +4823,8 @@ function jLiveSend(){
 }
 async function jLiveHandle(texto){
   if(!LIVE_ON)return;
+  // detener escucha mientras procesa y responde
+  if(LIVE_REC){ try{LIVE_REC.onresult=null; LIVE_REC.onend=null; LIVE_REC.abort?LIVE_REC.abort():LIVE_REC.stop();}catch(e){} LIVE_REC=null; }
   rabState('thinking');
   jLiveSetState('El Rab está pensando…', '«'+texto+'»');
   if(!JFLOAT)JFLOAT=jNewThread();
@@ -4795,10 +4843,13 @@ async function jLiveHandle(texto){
   jLiveSpeak(rep);
 }
 function jLiveSpeak(t){
-  // mostrar el texto de la respuesta del Rab dentro del overlay del Live
+  // CLAVE: detener el micrófono mientras el Rab habla (evita conflicto que silencia el audio)
+  if(LIVE_REC){ try{LIVE_REC.onresult=null; LIVE_REC.onend=null; LIVE_REC.abort?LIVE_REC.abort():LIVE_REC.stop();}catch(e){} LIVE_REC=null; }
+  // asegurar que el contexto de audio esté activo justo antes de reproducir
+  _ensureAudioCtx();
   jLiveSetState('El Rab responde…', t);
   rabState('speaking');
-  speakNow(t, function(){ if(LIVE_ON){ jLiveSetState('El Rab te escucha…','Habla cuando quieras'); rabState('listening'); setTimeout(jLiveListen,300); } });
+  speakNow(t, function(){ if(LIVE_ON){ jLiveSetState('El Rab te escucha…','Habla cuando quieras'); rabState('listening'); setTimeout(jLiveListen,400); } });
 }
 function jLiveEnd(){
   LIVE_ON=false;
