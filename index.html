@@ -181,23 +181,51 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .navscrim.show{opacity:1;visibility:visible}
 .sidenav{position:fixed;top:0;left:0;bottom:0;width:min(82vw,330px);background:#fff;z-index:91;transform:translateX(-104%);transition:transform .28s cubic-bezier(.3,.7,.3,1);display:flex;flex-direction:column;box-shadow:6px 0 30px rgba(20,18,50,.18)}
 .sidenav.open{transform:none}
-.sn-top{display:flex;align-items:center;justify-content:space-between;padding:1rem 1rem .8rem;background:var(--tinta-d);color:#fff;flex:0 0 auto}
-.sn-brand b{font-family:'Frank Ruhl Libre',serif;font-size:1.15rem;display:block;line-height:1}
-.sn-brand span{font-size:.64rem;color:#B7B5DE;letter-spacing:.1em}
-.sn-x{color:#fff;font-size:1.6rem;line-height:1;width:32px;height:32px}
-.sn-body{flex:1;overflow-y:auto;padding:.6rem .55rem 2rem}
-.sn-group{margin-bottom:.1rem}
-.sn-item{display:flex;align-items:center;gap:.65rem;width:100%;text-align:left;padding:.7rem .65rem;border-radius:10px;font-size:.86rem;font-weight:700;color:var(--tinta-d);transition:background .15s}
-.sn-item:hover,.sn-item.exp{background:var(--violet-soft)}
-.sn-item .jic svg{width:19px;height:19px;color:var(--violet)}
+.sidenav{background:#FCFBFF}
+.sn-top{position:relative;display:flex;align-items:center;justify-content:space-between;padding:1.15rem 1.1rem 1.05rem;color:#fff;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--tinta-deep) 0%,var(--tinta-d) 48%,var(--violet) 130%);overflow:hidden}
+.sn-top::after{content:"";position:absolute;right:-30px;top:-40px;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(243,190,82,.30),transparent 68%);pointer-events:none}
+.sn-brand{position:relative;z-index:1;display:flex;align-items:center;gap:.6rem}
+.sn-brand .sn-logo{width:34px;height:34px;flex:0 0 auto;border-radius:9px;display:block;box-shadow:0 3px 10px rgba(20,18,50,.35)}
+.sn-brand b{font-family:'Frank Ruhl Libre',serif;font-size:1.18rem;display:block;line-height:1.05;letter-spacing:-.01em}
+.sn-brand span{font-size:.6rem;color:var(--oro-l);letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+.sn-x{position:relative;z-index:1;color:#fff;font-size:1.5rem;line-height:1;width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);transition:background .15s}
+.sn-x:hover{background:rgba(255,255,255,.24)}
+.sn-body{flex:1;overflow-y:auto;padding:.85rem .7rem 2rem}
+.sn-group{margin-bottom:.12rem}
+.sn-item{position:relative;display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;padding:.72rem .7rem;border-radius:12px;
+  font-size:.875rem;font-weight:700;color:var(--tinta-d);transition:background .16s,color .16s}
+.sn-item .jic{width:30px;height:30px;flex:0 0 auto;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--violet-soft);transition:background .16s,transform .16s}
+.sn-item .jic svg{width:17px;height:17px;color:var(--violet);transition:color .16s}
+.sn-item:hover{background:var(--violet-soft)}
+.sn-item:hover .jic{background:#fff;transform:scale(1.04)}
+.sn-item.exp{background:var(--violet-soft)}
+/* estado activo: barra de acento + realce */
+.sn-item.active{background:linear-gradient(90deg,var(--violet-soft),transparent 92%);color:var(--violet)}
+.sn-item.active::before{content:"";position:absolute;left:-.7rem;top:50%;transform:translateY(-50%);width:3.5px;height:60%;
+  border-radius:0 4px 4px 0;background:linear-gradient(var(--violet),var(--violet-l))}
+.sn-item.active .jic{background:var(--violet);box-shadow:0 3px 9px rgba(108,76,224,.4)}
+.sn-item.active .jic svg{color:#fff}
 .sn-label{flex:1}
-.sn-caret{color:var(--gris);font-size:1.1rem;transition:transform .2s}
-.sn-item.exp .sn-caret{transform:rotate(90deg)}
-.sn-subwrap{max-height:0;overflow:hidden;transition:max-height .3s ease}
-.sn-subwrap.open{max-height:600px}
-.sn-sub{display:block;width:100%;text-align:left;padding:.5rem .65rem .5rem 2.5rem;font-size:.76rem;color:var(--ink);border-radius:8px;position:relative}
-.sn-sub::before{content:"";position:absolute;left:1.5rem;top:50%;width:5px;height:5px;border-radius:50%;background:var(--violet-l);transform:translateY(-50%)}
-.sn-sub:hover{background:var(--bg);color:var(--violet)}
+.sn-caret{color:var(--violet-l);font-size:1.05rem;transition:transform .22s;opacity:.7}
+.sn-item.exp .sn-caret{transform:rotate(90deg);opacity:1}
+.sn-subwrap{max-height:0;overflow:hidden;transition:max-height .32s ease;margin:.1rem 0 .2rem}
+.sn-subwrap.open{max-height:640px}
+.sn-sub{display:block;width:100%;text-align:left;padding:.5rem .7rem .5rem 3.05rem;font-size:.78rem;font-weight:600;color:var(--ink);
+  border-radius:9px;position:relative;transition:background .14s,color .14s}
+.sn-sub::before{content:"";position:absolute;left:1.55rem;top:0;bottom:0;width:1.5px;background:var(--linea)}
+.sn-sub::after{content:"";position:absolute;left:calc(1.55rem - 2.5px);top:50%;width:6.5px;height:6.5px;border-radius:50%;
+  background:#fff;border:1.5px solid var(--violet-l);transform:translateY(-50%);transition:background .14s,border-color .14s}
+.sn-sub:hover{background:var(--violet-soft);color:var(--violet)}
+.sn-sub:hover::after{background:var(--violet);border-color:var(--violet)}
+.sn-sub.active{color:var(--violet);font-weight:700}
+.sn-sub.active::after{background:var(--oro);border-color:var(--oro)}
+.sn-foot{flex:0 0 auto;padding:.85rem 1.1rem 1.05rem;border-top:1px solid var(--linea);
+  font-family:'Frank Ruhl Libre',serif;font-size:.72rem;color:var(--gris);display:flex;align-items:center;gap:.5rem}
+.sn-foot .heb{font-size:1rem;color:var(--oro);font-weight:700}
 .profbtn{width:32px;height:32px;border-radius:50%;flex:0 0 auto;border:2px solid var(--violet);color:#fff;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif}
 .prof-hd{display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem}
 .prof-av{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.4rem;font-family:'Frank Ruhl Libre',serif;flex:0 0 auto}
@@ -1589,10 +1617,14 @@ img, svg{max-width:100%}
     <div class="navscrim" id="navscrim" onclick="closeNav()"></div>
     <nav class="sidenav" id="sidenav" aria-label="Navegación">
       <div class="sn-top">
-        <div class="sn-brand"><b>Jabrutouch</b><span>by Tashema</span></div>
+        <div class="sn-brand">
+          <svg class="sn-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#2c2ba2"/><path d="M50 28c-2.2 0-3.6 1.1-5.6 3.2-2.4 2.5-3.8 3.7-3.8 6.2 0 2.3 1.4 3.7 2.9 5.4 1 1.1 1.4 2 1.4 3.8v15.5c0 1.6 1.3 2.9 2.9 2.9h4.4c1.6 0 2.9-1.3 2.9-2.9V46.6c0-1.8.4-2.7 1.4-3.8 1.5-1.7 2.9-3.1 2.9-5.4 0-2.5-1.4-3.7-3.8-6.2C53.6 29.1 52.2 28 50 28Z" fill="#f3be52"/><path d="M55.4 42.8c-1 1.1-1.4 2-1.4 3.8v15.5c0 1.6-1.3 2.9-2.9 2.9h-1.1V28c2.2 0 3.6 1.1 5.6 3.2 2.4 2.5 3.8 3.7 3.8 6.2 0 2.3-1.4 3.7-2.9 5.4Z" fill="#ff5f50"/><path d="M33 39.5c-1.8-.2-3.1.7-4.4 2.2-1.5 1.7-2.5 2.5-2.7 4.6-.2 1.9.7 3.1 1.7 4.6.7 1 .9 1.7.7 3.2l-2 14.5c-.2 1.5.9 2.9 2.4 3.1l3 .4c1.5.2 2.9-.9 3.1-2.4l2-14.5c.2-1.4.7-2 1.7-2.9 1.4-1.3 2.4-2.2 2.6-4.2.2-2-.8-3.1-2.1-4.8-1.3-1.6-2.5-3.2-4.3-3.4Z" fill="#f3be52"/><path d="M27.6 51.5c.7 1 .9 1.7.7 3.2l-2 14.5c-.2 1.5.9 2.9 2.4 3.1l3 .4c.5.1 1 0 1.4-.2l2.3-19.8-8.2-1.2Z" fill="#59c3c3"/><path d="M67 39.5c1.8-.2 3.1.7 4.4 2.2 1.5 1.7 2.5 2.5 2.7 4.6.2 1.9-.7 3.1-1.7 4.6-.7 1-.9 1.7-.7 3.2l2 14.5c.2 1.5-.9 2.9-2.4 3.1l-3 .4c-1.5.2-2.9-.9-3.1-2.4l-2-14.5c-.2-1.4-.7-2-1.7-2.9-1.4-1.3-2.4-2.2-2.6-4.2-.2-2 .8-3.1 2.1-4.8 1.3-1.6 2.5-3.2 4.3-3.4Z" fill="#ff5f50"/></svg>
+          <div><b>Jabrutouch</b><span>by Tashema</span></div>
+        </div>
         <button class="sn-x" onclick="closeNav()" aria-label="Cerrar">×</button>
       </div>
       <div class="sn-body" id="sn-body"></div>
+      <div class="sn-foot"><span class="heb">תשמע</span><span>La yeshivá nativa digital</span></div>
     </nav>
 
     <div class="content" id="content">
@@ -2386,7 +2418,7 @@ function toast(t){const e=document.getElementById('toast');e.textContent=t;e.cla
 /* ================= PERSONAS ================= */
 
 /* ================= ICONOGRAFÍA JABRUTOUCH (set de marca) ================= */
-const IC={
+const IC={home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9 21v-6h6v6"/></svg>',
  suguia:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h7a3 3 0 0 1 3 3v11a3 3 0 0 0-3-2H4z"/><path d="M20 5h-7"/><path d="M17 5v12"/></svg>',
  javruta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10h8M8 14h5"/><path d="M21 11.5a8 8 0 0 1-8 8H7l-4 3v-3.5a8 8 0 1 1 18-7.5z"/></svg>',
  audio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>',
@@ -2700,6 +2732,7 @@ function goTab(t){
   document.getElementById('content').scrollTop=0;
   if(t==='impacto')animateImpact();
   if(t==='javruta')jEnterSection();
+  try{ navMarkActive(); }catch(e){}
   setTimeout(segOverflow,30);
 }
 function setSeg(s){
@@ -2717,8 +2750,8 @@ function setSeg(s){
 
 /* ================= SIDEBAR NAV (G1) ================= */
 const NAVTREE=[
- {ic:'home',t:'Home',go:"goTab('hoy')"},
- {ic:'suguia',t:'Estudiar',sub:[
+ {ic:'home',t:'Home',tab:'hoy',go:"goTab('hoy')"},
+ {ic:'suguia',t:'Estudiar',tab:'estudiar',sub:[
    {t:'Suguiá del día',go:"goTab('estudiar');setSeg('sugia')"},
    {t:'Entrenar (anatomía + vocabulario)',go:"goTab('estudiar');setSeg('entrenar')"},
    {t:'Jazará (repaso espaciado)',go:"goTab('estudiar');setSeg('jazara')"},
@@ -2726,11 +2759,11 @@ const NAVTREE=[
    {t:'Catálogo de suguiot',go:"goTab('estudiar');setSeg('cat')"},
    {t:'✦ Biblioteca viva (cualquier texto → método del Rab)',go:"goTab('estudiar');setSeg('biblio')"},
    {t:'Lector interactivo',go:"goTab('estudiar');setSeg('sugia');setTimeout(openReader,250)"}]},
- {ic:'javruta',t:'Javruta',sub:[
+ {ic:'javruta',t:'Javruta',tab:'javruta',sub:[
    {t:'Tu javruta (Tashema Intelligence)',go:"goTab('javruta')"},
    {t:'Encuentra tu javruta',go:"goTab('kehila');setTimeout(function(){var e=document.querySelector('#match-box');if(e)e.scrollIntoView({behavior:'smooth'});},250)"}]},
- {ic:'grupo',t:'Comunidad',go:"goTab('kehila')"},
- {ic:'globe',t:'Mundo',sub:[
+ {ic:'grupo',t:'Comunidad',tab:'kehila',go:"goTab('kehila')"},
+ {ic:'globe',t:'Mundo',tab:'mundo',sub:[
    {t:'Grafos (transmisión + conceptos)',go:"goTab('mundo');setMseg('grafo')"},
    {t:'Épocas (historia narrada)',go:"goTab('mundo');setMseg('epocas')"},
    {t:'Shas (mapa de tratados)',go:"goTab('mundo');setMseg('shas')"},
@@ -2740,7 +2773,7 @@ const NAVTREE=[
    {t:'Escalera de lectura',go:"goTab('mundo');setMseg('saber');setSaber('metodo');setTimeout(openEscalera,250)"},
    {t:'Cómo se estudia una Mishná',go:"goTab('mundo');setMseg('saber');setSaber('historia');setTimeout(openMishnaEjemplo,250)"},
    {t:'Diagnóstico del Rab',go:"goTab('mundo');setMseg('saber');setSaber('historia');setTimeout(openDiagnostico,250)"}]},
- {ic:'star',t:'Impacto',sub:[
+ {ic:'star',t:'Impacto',tab:'impacto',sub:[
    {t:'Para donantes',go:"goTab('impacto');setIseg('don')"},
    {t:'Pedagogía',go:"goTab('impacto');setIseg('ped')"},
    {t:'Escuelas',go:"goTab('impacto');setIseg('esc')"}]},
@@ -2748,7 +2781,7 @@ const NAVTREE=[
 function renderNav(){
   var el=document.getElementById('sn-body'); if(!el)return;
   el.innerHTML=NAVTREE.map(function(s,i){
-    var head='<button class="sn-item'+(s.sub?' has-sub':'')+'" onclick="'+(s.sub?'navToggle('+i+')':'navGo(\''+s.go.replace(/'/g,"\\'")+'\')')+'">'+(IC[s.ic]?'<span class="jic">'+IC[s.ic]+'</span>':'')+'<span class="sn-label">'+s.t+'</span>'+(s.sub?'<span class="sn-caret">›</span>':'')+'</button>';
+    var head='<button class="sn-item'+(s.sub?' has-sub':'')+'"'+(s.tab?' data-tab="'+s.tab+'"':'')+' onclick="'+(s.sub?'navToggle('+i+')':'navGo(\''+s.go.replace(/'/g,"\\'")+'\')')+'">'+(IC[s.ic]?'<span class="jic">'+IC[s.ic]+'</span>':'')+'<span class="sn-label">'+s.t+'</span>'+(s.sub?'<span class="sn-caret">›</span>':'')+'</button>';
     if(s.sub){
       head+='<div class="sn-subwrap" id="sn-sub-'+i+'">'+s.sub.map(function(ss){
         return '<button class="sn-sub" onclick="navGo(\''+ss.go.replace(/'/g,"\\'")+'\')">'+ss.t+'</button>';
@@ -2756,6 +2789,15 @@ function renderNav(){
     }
     return '<div class="sn-group">'+head+'</div>';
   }).join('');
+  navMarkActive();
+}
+// Resalta el item correspondiente a la sección activa
+function navMarkActive(){
+  try{
+    var active=null;
+    document.querySelectorAll('.panel').forEach(function(t){ if(t.classList.contains('on'))active=t.id.replace('tab-',''); });
+    document.querySelectorAll('.sn-item[data-tab]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab')===active); });
+  }catch(e){}
 }
 function openNav(){renderNav();document.getElementById('sidenav').classList.add('open');document.getElementById('navscrim').classList.add('show');document.getElementById('hammenu').classList.add('on');var hf=document.getElementById('hamfloat');if(hf)hf.classList.add('on');}
 function navToggleAll(){var sn=document.getElementById('sidenav');if(sn&&sn.classList.contains('open'))closeNav();else openNav();}
@@ -4467,6 +4509,7 @@ function jAddM(t,who){ jPaintFloat(t,who); }
 async function jSend(){
   var inp=document.getElementById('jcin'); var txt=inp.value.trim(); if(!txt)return;
   if(!JFLOAT)JFLOAT=jNewThread();
+  if(S.tts){ try{ _rabUnlock(); _rabPrime(); }catch(e){} }   // mantener audio vivo durante la espera (iOS)
   inp.value=''; jPaintFloat(txt,'u'); JFLOAT.msgs.push({role:'user',content:txt});
   var ty=document.createElement('div'); ty.className='typing'; ty.id='jty'; ty.innerHTML='<i></i><i></i><i></i>';
   document.getElementById('jmsgs').appendChild(ty); ty.scrollIntoView({behavior:'smooth',block:'end'}); rabState('thinking');
@@ -4651,90 +4694,143 @@ function speak(t){
   if(!S.tts)return;        // respeta el silenciador del usuario
   speakNow(t);             // voz del Rab (ElevenLabs) con fallback al navegador
 }
-var RAB_AUDIO=null;        // elemento <audio> de la voz del Rab
-var RAB_TTS_OK=true;       // si ElevenLabs falla por config, no reintentar esta sesión
-var VOICE_TOKEN=0;         // candado: solo la última petición de voz puede sonar
+/* ═══ SISTEMA DE VOZ DEL RAB — patrón de reproductor persistente (iOS/Safari fiable) ═══
+   Clave: UN solo <audio> reutilizable, desbloqueado por el primer gesto del usuario.
+   NUNCA crear new Audio() por respuesta (Safari lo bloquea tras esperar al LLM).
+   Sin Web Audio/amplificación (eso rompía el audio tras el primer uso). */
+var _RAB_SEQ=0;            // invalida peticiones de voz solapadas
+var _RAB_UNLOCKED=false;   // iOS: el audio debe desbloquearse con un gesto
+var _RAB_PLAYER=null;      // UN elemento <audio> persistente, reutilizado siempre
+var RAB_AUDIO=null;        // alias al reproductor (compatibilidad con pausa/play)
+var RAB_TTS_OK=true;       // si ElevenLabs falla por config, no reintentar
+var _RAB_ONEND=null;       // callback de fin de reproducción (one-shot)
+var _RAB_SILENT='data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAABIADAwMDAwMDAwMDAwMDAwMDA//8AAP//AP8AAAAAAAAAAAAAAAAAAAAA';
 function _liveNow(){ var o=document.getElementById('jlive-overlay'); return o&&o.classList.contains('show'); }
-// Detiene TODA voz en curso (ElevenLabs + navegador) e invalida peticiones previas
-function _stopRabAudio(){
-  VOICE_TOKEN++;                                  // invalida cualquier reproducción en vuelo
-  if(RAB_AUDIO){ try{RAB_AUDIO.pause(); RAB_AUDIO.src='';}catch(e){} RAB_AUDIO=null; }
-  if(window.speechSynthesis){ try{speechSynthesis.cancel();}catch(e){} }
+
+/* ── Potenciador de volumen SEGURO ──
+   El grafo de Web Audio se conecta UNA sola vez al reproductor persistente (que nunca se
+   recrea), por eso createMediaElementSource jamás se vuelve a llamar y nunca rompe el audio.
+   El AudioContext se reanuda en cada gesto. Si Web Audio no está disponible, el audio suena
+   por la vía normal a volume=1 (nunca se queda mudo). */
+var _RAB_GAINX=2.6;        // factor de amplificación de la voz del Rab (ajustable)
+var _RAB_ACTX=null, _RAB_GAIN=null, _RAB_WIRED=false;
+function _rabResumeCtx(){ try{ if(_RAB_ACTX && _RAB_ACTX.state==='suspended') _RAB_ACTX.resume(); }catch(e){} }
+function _rabWireAmp(){
+  // conecta el reproductor al grafo de amplificación UNA sola vez
+  if(_RAB_WIRED){ _rabResumeCtx(); return; }
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    if(!_RAB_ACTX) _RAB_ACTX=new AC();
+    var a=_rabPlayer();
+    var src=_RAB_ACTX.createMediaElementSource(a);   // SOLO una vez en toda la vida del elemento
+    _RAB_GAIN=_RAB_ACTX.createGain(); _RAB_GAIN.gain.value=_RAB_GAINX;
+    var comp=_RAB_ACTX.createDynamicsCompressor();   // limitador anti-saturación
+    comp.threshold.value=-6; comp.knee.value=2; comp.ratio.value=18; comp.attack.value=0.003; comp.release.value=0.25;
+    src.connect(_RAB_GAIN); _RAB_GAIN.connect(comp); comp.connect(_RAB_ACTX.destination);
+    _RAB_WIRED=true;
+    _rabResumeCtx();
+  }catch(e){ /* si falla, el audio suena normal a volume=1 */ }
 }
-// Voz del navegador (respaldo)
-function speakBrowser(t, onend, token){
-  if(token!==undefined && token!==VOICE_TOKEN){ if(onend)onend(); return; }
+function jSetVolBoost(x){   // ajustar el potenciador en vivo si hace falta
+  _RAB_GAINX=x;
+  try{ if(_RAB_GAIN) _RAB_GAIN.gain.value=x; }catch(e){}
+}
+
+function _rabPlayer(){
+  if(!_RAB_PLAYER){
+    _RAB_PLAYER=new Audio();
+    _RAB_PLAYER.preload='auto';
+    _RAB_PLAYER.setAttribute('playsinline','');
+    RAB_AUDIO=_RAB_PLAYER;
+  }
+  return _RAB_PLAYER;
+}
+// Desbloquea el audio en el primer gesto (reproduce un clip silencioso mientras hay permiso)
+function _rabUnlock(){
+  if(_RAB_UNLOCKED) return;
+  try{ if(_RAB_PLAYER && !_RAB_PLAYER.paused && _RAB_PLAYER.src && _RAB_PLAYER.src.indexOf(_RAB_SILENT)<0){ _RAB_UNLOCKED=true; return; } }catch(e){}
+  try{
+    var a=_rabPlayer(); a.src=_RAB_SILENT; a.volume=0;
+    var p=a.play();
+    if(p&&p.then){ p.then(function(){ try{a.pause();a.currentTime=0;}catch(e){} a.volume=1; _RAB_UNLOCKED=true; _rabWireAmp(); }).catch(function(){ a.volume=1; }); }
+    else { a.volume=1; _RAB_UNLOCKED=true; _rabWireAmp(); }
+  }catch(e){}
+}
+// Mantener el reproductor "vivo" durante la espera al LLM (clip silencioso en loop)
+function _rabPrime(){
+  try{
+    if(_RAB_PLAYER && !_RAB_PLAYER.paused && _RAB_PLAYER.src && _RAB_PLAYER.src.indexOf(_RAB_SILENT)<0) return;
+    var a=_rabPlayer(); a.loop=true; a.volume=0; a.src=_RAB_SILENT;
+    var p=a.play(); if(p&&p.catch) p.catch(function(){});
+  }catch(e){}
+}
+// Enganchar el desbloqueo al primer gesto real, luego quitar los listeners
+(function(){
+  var EV=['touchend','pointerdown','click','keydown'];
+  function clean(){ EV.forEach(function(e){ document.removeEventListener(e, first, {capture:true}); }); }
+  function first(){ _rabUnlock(); clean(); }
+  function keepalive(){ _rabResumeCtx(); }
+  EV.forEach(function(e){ document.addEventListener(e, first, {capture:true, passive:true}); });
+  // reanudar el contexto en cada toque (iOS lo suspende entre interacciones)
+  ['touchend','click'].forEach(function(e){ document.addEventListener(e, keepalive, {capture:true, passive:true}); });
+})();
+
+function _rabAfter(){
+  rabState(_liveNow()?'listening':'idle');
+  try{ if(typeof _RAB_ONEND==='function'){ var cb=_RAB_ONEND; _RAB_ONEND=null; cb(); } }catch(e){}
+}
+// Voz del navegador (respaldo si ElevenLabs no está disponible)
+function speakBrowser(t, onend, seq){
+  if(seq!==undefined && seq!==_RAB_SEQ){ if(onend)onend(); return; }
   if(!window.speechSynthesis){ if(onend)onend(); return; }
-  speechSynthesis.cancel();
-  var u=new SpeechSynthesisUtterance(t.replace(/[👑✓✗]/g,'')); u.lang='es-MX'; u.rate=1.02*jAudioSpeed;
-  var v=speechSynthesis.getVoices().find(function(x){return x.lang&&x.lang.startsWith('es');}); if(v)u.voice=v;
-  u.onstart=function(){rabState('speaking');};
-  u.onend=function(){rabState(_liveNow()?'listening':'idle'); if(onend)onend();};
-  speechSynthesis.speak(u);
-}
-var _RAB_ACTX=null;
-var _RAB_GAINX=5.0;        // factor de amplificación de la voz del Rab (500%, con limitador)
-var _RAB_SRC=null;         // MediaElementSource del audio actual (uno por elemento)
-// Reanuda el AudioContext en cualquier interacción del usuario (requisito de Safari/Chrome)
-function _ensureAudioCtx(){
   try{
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC) return null;
-    if(!_RAB_ACTX) _RAB_ACTX = new AC();
-    if(_RAB_ACTX.state==='suspended'){ _RAB_ACTX.resume(); }
-    return _RAB_ACTX;
-  }catch(e){ return null; }
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance((t||'').replace(/[👑✓✗]/g,'')); u.lang='es-MX'; u.rate=1.02*(jAudioSpeed||1);
+    var v=speechSynthesis.getVoices().find(function(x){return x.lang&&x.lang.startsWith('es');}); if(v)u.voice=v;
+    u.onstart=function(){rabState('speaking');};
+    u.onend=function(){ if(onend)onend(); rabState(_liveNow()?'listening':'idle'); };
+    u.onerror=function(){ if(onend)onend(); rabState(_liveNow()?'listening':'idle'); };
+    speechSynthesis.speak(u);
+  }catch(e){ if(onend)onend(); }
 }
-document.addEventListener('click', _ensureAudioCtx, true);
-document.addEventListener('touchstart', _ensureAudioCtx, true);
-// Amplifica la voz del Rab SOLO si el contexto está activo. Si algo falla,
-// no enruta y el audio suena por la vía normal (garantiza que SIEMPRE se oiga).
-function _amplifyRab(audioEl, gainX){
-  try{
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC) return;
-    if(!_RAB_ACTX) _RAB_ACTX = new AC();
-    // intentar reanudar; si queda suspendido, NO enrutar (el audio sale normal y se oye)
-    if(_RAB_ACTX.state==='suspended'){ _RAB_ACTX.resume(); }
-    if(_RAB_ACTX.state!=='running') return;
-    var src = _RAB_ACTX.createMediaElementSource(audioEl);
-    var gain = _RAB_ACTX.createGain();
-    gain.gain.value = gainX || _RAB_GAINX;
-    var comp = _RAB_ACTX.createDynamicsCompressor();
-    comp.threshold.value = -8; comp.knee.value = 0; comp.ratio.value = 20;
-    comp.attack.value = 0.003; comp.release.value = 0.25;
-    src.connect(gain); gain.connect(comp); comp.connect(_RAB_ACTX.destination);
-  }catch(e){ /* si falla, el audio suena a volumen normal sin amplificar */ }
+function _stopRabAudio(){
+  _RAB_SEQ++;
+  if(_RAB_PLAYER){ try{ _RAB_PLAYER.loop=false; _RAB_PLAYER.pause(); }catch(e){} }
+  if(window.speechSynthesis){ try{ speechSynthesis.cancel(); }catch(e){} }
 }
-// Voz del Rab (ElevenLabs vía proxy). Cae al navegador si no está disponible.
-// El candado VOICE_TOKEN garantiza que NUNCA suenen dos voces a la vez.
+// Voz del Rab: pide el MP3 al proxy y lo reproduce en el reproductor persistente.
 async function speakNow(t, onend){
-  _stopRabAudio();                 // corta lo anterior y avanza el token
-  var myToken=VOICE_TOKEN;         // este es mi turno
   var clean=(typeof cleanReply==='function')?cleanReply(t):t;
   if(!clean){ if(onend)onend(); return; }
-  if(!RAB_TTS_OK){ speakBrowser(clean, onend, myToken); return; }
+  _stopRabAudio();
+  var seq=++_RAB_SEQ;
+  _RAB_ONEND = onend || null;
+  _rabUnlock();
+  if(!RAB_TTS_OK){ speakBrowser(clean, function(){ _rabAfter(); }, seq); return; }
   try{
-    rabState('thinking');          // mientras carga el audio: estado pensando
+    rabState('thinking');
     var r=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:clean})});
+    if(seq!==_RAB_SEQ) return;            // llegó otra petición mientras cargaba
     var d=await r.json();
-    // si llegó otra petición de voz mientras cargaba, abortar esta
-    if(myToken!==VOICE_TOKEN){ if(onend)onend(); return; }
+    if(seq!==_RAB_SEQ) return;
     if(d && d.audio && !d.fallback){
-      var a=new Audio(d.audio); a.volume=1.0; RAB_AUDIO=a;
-      a.playbackRate=jAudioSpeed||1;
-      a.onplay=function(){ if(myToken===VOICE_TOKEN) rabState('speaking'); };
-      a.onended=function(){ if(RAB_AUDIO===a)RAB_AUDIO=null; rabState(_liveNow()?'listening':'idle'); if(onend)onend(); };
-      a.onerror=function(){ if(RAB_AUDIO===a)RAB_AUDIO=null; speakBrowser(clean, onend, myToken); };
-      _amplifyRab(a, _RAB_GAINX);   // amplifica solo si el contexto está sano (síncrono); si no, suena normal
-      try{ await a.play(); }
-      catch(e){ speakBrowser(clean, onend, myToken); }
+      var a=_rabPlayer();
+      a.loop=false; a.volume=1.0;
+      _rabWireAmp();                 // asegura grafo de amplificación conectado + contexto activo
+      a.onplay=function(){ if(seq===_RAB_SEQ) rabState('speaking'); };
+      a.onended=function(){ if(seq===_RAB_SEQ) _rabAfter(); };
+      a.onerror=function(){ if(seq===_RAB_SEQ) speakBrowser(clean, function(){ _rabAfter(); }, seq); };
+      a.src=d.audio;
+      try{ a.currentTime=0; }catch(e){}
+      try{ a.playbackRate=jAudioSpeed||1; }catch(e){}
+      var p=a.play();
+      if(p&&p.catch){ p.catch(function(){ if(seq===_RAB_SEQ) speakBrowser(clean, function(){ _rabAfter(); }, seq); }); }
     }else{
       if(d && d.fallback) RAB_TTS_OK=false;
-      speakBrowser(clean, onend, myToken);
+      speakBrowser(clean, function(){ _rabAfter(); }, seq);
     }
   }catch(e){
-    if(myToken===VOICE_TOKEN) speakBrowser(clean, onend, myToken);
+    if(seq===_RAB_SEQ) speakBrowser(clean, function(){ _rabAfter(); }, seq);
     else if(onend)onend();
   }
 }
@@ -4750,10 +4846,16 @@ function jSetSpeed(s){
 }
 var JREPLAY_BTN=null, JREPLAY_IDX=null, JREPLAY_SCOPE=null;
 function jReplay(idx, scope, btn){
-  // Si toco el MISMO mensaje que está sonando → pausa/reanuda
-  if(btn && btn===JREPLAY_BTN && RAB_AUDIO){
-    if(RAB_AUDIO.paused){ RAB_AUDIO.play(); btn.classList.remove('paused'); btn.classList.add('playing'); }
-    else { RAB_AUDIO.pause(); btn.classList.remove('playing'); btn.classList.add('paused'); }
+  try{ _rabUnlock(); }catch(e){}
+  // Si toco el MISMO botón que está activo → pausa/reanuda en el sitio
+  if(btn && btn===JREPLAY_BTN && _RAB_PLAYER && _RAB_PLAYER.src){
+    if(_RAB_PLAYER.paused){
+      var p=_RAB_PLAYER.play();
+      if(p&&p.then){ p.then(function(){ btn.classList.remove('paused'); btn.classList.add('playing'); }).catch(function(){}); }
+      else { btn.classList.remove('paused'); btn.classList.add('playing'); }
+    } else {
+      _RAB_PLAYER.pause(); btn.classList.remove('playing'); btn.classList.add('paused');
+    }
     return;
   }
   var thread = scope==='float'?JFLOAT:JSECTION;
@@ -4764,13 +4866,12 @@ function jReplay(idx, scope, btn){
   document.querySelectorAll('.m-audio.loading,.m-audio.playing,.m-audio.paused').forEach(function(b){b.classList.remove('loading','playing','paused');});
   if(btn){ btn.classList.add('loading'); JREPLAY_BTN=btn; JREPLAY_IDX=idx; JREPLAY_SCOPE=scope; }
   speakNow(msg.content, function(){ if(btn)btn.classList.remove('playing','paused','loading'); if(JREPLAY_BTN===btn)JREPLAY_BTN=null; });
+  // cuando el audio realmente empiece a sonar, pasar de loading a playing
   var chk=setInterval(function(){
-    if(RAB_AUDIO || (window.speechSynthesis&&speechSynthesis.speaking)){
-      if(btn){btn.classList.remove('loading');btn.classList.add('playing');}
-      clearInterval(chk);
-    }
+    var sounding = (_RAB_PLAYER && !_RAB_PLAYER.paused && _RAB_PLAYER.src && _RAB_PLAYER.src.indexOf(_RAB_SILENT)<0) || (window.speechSynthesis&&speechSynthesis.speaking);
+    if(sounding){ if(btn){btn.classList.remove('loading');btn.classList.add('playing');} clearInterval(chk); }
   },80);
-  setTimeout(function(){clearInterval(chk); if(btn)btn.classList.remove('loading');},8000);
+  setTimeout(function(){clearInterval(chk); if(btn)btn.classList.remove('loading');},10000);
 }
 
 /* control de estados del avatar vivo del Rab */
@@ -4793,44 +4894,51 @@ function jLiveStart(){
   if(!document.getElementById('jsheet').classList.contains('show')){ document.body.appendChild(ov); ov.style.position='fixed'; ov.style.zIndex='120'; }
   ov.classList.add('show');
   LIVE_ON=true;
-  _ensureAudioCtx();   // activar audio desde el gesto de abrir Live (clave en iOS)
+  try{ _rabUnlock(); _rabPrime(); }catch(e){}   // desbloquear audio desde el gesto de abrir Live (iOS)
   if(!JFLOAT)JFLOAT=jNewThread();
   // enfocar el campo de texto para que escribir sea inmediato
   var inp=document.getElementById('jlive-text'); if(inp){ setTimeout(function(){try{inp.focus();}catch(e){}}, 200); }
   // iniciar el bucle de escucha por voz (si el navegador lo soporta)
   jLiveListen();
 }
+var _LIVE_HEARD='';   // texto acumulado del reconocimiento en curso
 function jLiveListen(){
   if(!LIVE_ON)return;
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){
-    // sin reconocimiento de voz: modo degradado, el usuario escribe y el Rab responde con voz
     rabState('idle');
-    jLiveSetState('Tu navegador no permite hablar aquí', 'Escribe tu pregunta abajo y el Rab te responderá con voz');
+    jLiveSetState('Aquí escribes tu pregunta', 'Tu navegador no permite hablar; escribe abajo y el Rab responde con voz');
+    var inp0=document.getElementById('jlive-text'); if(inp0){try{inp0.focus();}catch(e){}}
     return;
   }
+  try{ if(LIVE_REC) LIVE_REC.abort(); }catch(e){}
   try{
     rabState('listening');
-    jLiveSetState('El Rab te escucha…', 'Habla ahora; cuando termines, él responde');
-    LIVE_REC=new SR(); LIVE_REC.lang='es-MX'; LIVE_REC.interimResults=false; LIVE_REC.maxAlternatives=1;
+    jLiveSetState('El Rab te escucha…', 'Habla ahora; al terminar, él responde');
+    _LIVE_HEARD='';
+    var inp=document.getElementById('jlive-text'); if(inp)inp.value='';
+    LIVE_REC=new SR(); LIVE_REC.lang='es-MX'; LIVE_REC.interimResults=true; LIVE_REC.continuous=false; LIVE_REC.maxAlternatives=1;
     LIVE_REC.onresult=function(e){
-      var t=e.results[0][0].transcript;
-      jLiveHandle(t);
+      var txt=''; for(var i=0;i<e.results.length;i++){ txt+=e.results[i][0].transcript; }
+      _LIVE_HEARD=txt;
+      var ip=document.getElementById('jlive-text'); if(ip)ip.value=txt;
     };
     LIVE_REC.onerror=function(ev){
-      if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){
+      if(ev && (ev.error==='not-allowed'||ev.error==='service-not-allowed')){
         rabState('idle');
-        jLiveSetState('El micrófono está bloqueado', 'Permite el micrófono en tu navegador, o escribe tu pregunta abajo');
-      }else if(LIVE_ON){
-        // reintentar escuchar tras un breve respiro
-        setTimeout(jLiveListen, 600);
+        jLiveSetState('El micrófono está bloqueado', 'Permite el micrófono, o escribe tu pregunta abajo');
+        var ip2=document.getElementById('jlive-text'); if(ip2){try{ip2.focus();}catch(e){}}
       }
     };
-    LIVE_REC.onend=function(){ /* el ciclo se reanuda tras la respuesta */ };
+    LIVE_REC.onend=function(){
+      if(!LIVE_ON)return;
+      var v=(_LIVE_HEARD||'').trim();
+      if(v){ _LIVE_HEARD=''; jLiveHandle(v); }      // hubo voz → procesar
+      else { setTimeout(function(){ if(LIVE_ON) jLiveListen(); }, 500); }  // silencio → volver a escuchar
+    };
     LIVE_REC.start();
   }catch(e){
-    rabState('idle');
-    jLiveSetState('No pude abrir el micrófono', 'Escribe tu pregunta abajo y el Rab responde con voz');
+    setTimeout(function(){ if(LIVE_ON) jLiveListen(); }, 600);
   }
 }
 function jLiveSend(){
@@ -4843,8 +4951,8 @@ function jLiveSend(){
 }
 async function jLiveHandle(texto){
   if(!LIVE_ON)return;
-  // detener escucha mientras procesa y responde
-  if(LIVE_REC){ try{LIVE_REC.onresult=null; LIVE_REC.onend=null; LIVE_REC.abort?LIVE_REC.abort():LIVE_REC.stop();}catch(e){} LIVE_REC=null; }
+  try{ if(LIVE_REC){ LIVE_REC.onend=null; LIVE_REC.abort(); } }catch(e){}  // asegurar micrófono apagado
+  try{ _rabUnlock(); _rabPrime(); }catch(e){}   // mantener audio vivo durante la espera
   rabState('thinking');
   jLiveSetState('El Rab está pensando…', '«'+texto+'»');
   if(!JFLOAT)JFLOAT=jNewThread();
@@ -4863,9 +4971,8 @@ async function jLiveHandle(texto){
   jLiveSpeak(rep);
 }
 function jLiveSpeak(t){
-  // CLAVE: detener el micrófono mientras el Rab habla (evita conflicto que silencia el audio)
-  if(LIVE_REC){ try{LIVE_REC.onresult=null; LIVE_REC.onend=null; LIVE_REC.abort?LIVE_REC.abort():LIVE_REC.stop();}catch(e){} LIVE_REC=null; }
-  _ensureAudioCtx();
+  // detener el micrófono mientras el Rab habla
+  try{ if(LIVE_REC){ LIVE_REC.onend=null; LIVE_REC.abort(); LIVE_REC=null; } }catch(e){}
   jLiveSetState('El Rab responde…', t);
   rabState('speaking');
   var resumed=false;
